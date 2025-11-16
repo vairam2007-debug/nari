@@ -1,3 +1,10 @@
+import sys
+path = '/home/yourusername/path/to/project'
+if path not in sys.path:
+    sys.path.insert(0, path)
+
+from app import app as application
+
 from flask import Flask, render_template, request, jsonify, session, send_file
 from models import db, Menu, Order, OrderItem
 from datetime import datetime, timedelta
@@ -10,7 +17,8 @@ from PIL import Image, ImageDraw, ImageFont
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secrets.token_hex(16)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///restaurant.db'
+db_uri = os.environ.get('DATABASE_URL') or 'sqlite:///restaurant.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'static/images'
 
