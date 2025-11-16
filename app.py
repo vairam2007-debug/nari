@@ -1,10 +1,3 @@
-import sys
-path = '/home/yourusername/path/to/project'
-if path not in sys.path:
-    sys.path.insert(0, path)
-
-from app import app as application
-
 from flask import Flask, render_template, request, jsonify, session, send_file
 from models import db, Menu, Order, OrderItem
 from datetime import datetime, timedelta
@@ -49,7 +42,7 @@ def add_to_cart():
     menu_id = data.get('menu_id')
     quantity = int(data.get('quantity', 1))
     
-    menu_item = Menu.query.get(menu_id)
+    menu_item = db.session.get(Menu, menu_id)
     if not menu_item:
         return jsonify({'error': 'Menu item not found'}), 404
     
@@ -226,7 +219,7 @@ def create_menu():
 
 @app.route('/api/menu/<int:menu_id>', methods=['PUT'])
 def update_menu(menu_id):
-    menu_item = Menu.query.get(menu_id)
+    menu_item = db.session.get(Menu, menu_id)
     if not menu_item:
         return jsonify({'error': 'Menu item not found'}), 404
     
@@ -256,7 +249,7 @@ def update_menu(menu_id):
 
 @app.route('/api/menu/<int:menu_id>', methods=['DELETE'])
 def delete_menu(menu_id):
-    menu_item = Menu.query.get(menu_id)
+    menu_item = db.session.get(Menu, menu_id)
     if not menu_item:
         return jsonify({'error': 'Menu item not found'}), 404
     
