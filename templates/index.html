@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Menu</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Restaurant Menu</h1>
+        <nav>
+            <a href="/">Menu</a>
+            <a href="/manage-menu">Manage Menu</a>
+            <a href="/sales-report">Sales Report</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="menu-section">
+                <h2>Our Menu</h2>
+                <div class="menu-grid" id="menuGrid">
+                    {% for item in menu_items %}
+                    <div class="menu-item" data-id="{{ item.id }}">
+                        <div class="menu-image">
+                            {% if item.image_path %}
+                                {% if item.image_path.startswith('http://') or item.image_path.startswith('https://') %}
+                                <img src="{{ item.image_path }}" alt="{{ item.name }}" onerror="this.src='https://via.placeholder.com/200x150?text={{ item.name }}'">
+                                {% else %}
+                                <img src="{{ url_for('static', filename=item.image_path) }}" alt="{{ item.name }}" onerror="this.src='https://via.placeholder.com/200x150?text={{ item.name }}'">
+                                {% endif %}
+                            {% else %}
+                            <img src="https://via.placeholder.com/200x150?text={{ item.name }}" alt="{{ item.name }}">
+                            {% endif %}
+                        </div>
+                        <div class="menu-info">
+                            <h3>{{ item.name }}</h3>
+                            <p class="price">₹{{ "%.2f"|format(item.price) }}</p>
+                            {% if item.description %}
+                            <p class="description">{{ item.description }}</p>
+                            {% endif %}
+                            <button class="add-to-cart-btn" onclick="addToCart({{ item.id }}, '{{ item.name }}', {{ item.price }})">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="cart-section" id="cartSection">
+                <h2>Cart</h2>
+                <div class="cart-items" id="cartItems">
+                    <p class="empty-cart">Your cart is empty</p>
+                </div>
+                <div class="cart-summary" id="cartSummary" style="display: none;">
+                    <div class="cart-total">
+                        <strong>Total: ₹<span id="cartTotal">0.00</span></strong>
+                    </div>
+                    <div class="cart-actions">
+                        <button class="btn-secondary" onclick="clearCart()">Clear Cart</button>
+                        <button class="btn-primary" onclick="checkout()">Checkout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bill Modal -->
+    <div id="billModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeBillModal()">&times;</span>
+            <div id="billContent" class="bill-content">
+                <!-- Bill content will be inserted here -->
+            </div>
+            <div class="bill-actions">
+                <button class="btn-primary" onclick="printBill()">Print Bill</button>
+                <button class="btn-primary" onclick="generateQR()">Pay Now</button>
+                <button class="btn-secondary" onclick="closeBillModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Code Modal -->
+    <div id="qrModal" class="modal">
+        <div class="modal-content paytm-qr-modal">
+            <span class="close" onclick="closeQRModal()">&times;</span>
+            <div class="paytm-qr-wrapper">
+                <!-- Top Section -->
+                <div class="paytm-header">
+                    <div class="paytm-logo-section">
+                        <div class="paytm-logo-text">Paytm</div>
+                        <div class="paytm-upi-badge">
+                            <span>— से —</span>
+                            <span class="upi-text">UPI</span>
+                            <span class="upi-arrow">→</span>
+                        </div>
+                    </div>
+                    <div class="paytm-user-info">
+                        <div class="user-field">
+                            <div class="field-label">Name</div>
+                            <div class="field-value" id="qrUserName">ARUN HOTEL</div>
+                        </div>
+                        <div class="user-field">
+                            <div class="field-label">Phone</div>
+                            <div class="field-value" id="qrUserPhone">9025977011</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- QR Code Section -->
+                <div class="paytm-qr-section">
+                    <div class="paytm-qr-header">
+                        <div class="paytm-logo-small">Paytm</div>
+                        <div class="accepted-text">Accepted Here</div>
+                    </div>
+                    <div class="scan-pay-text">Scan & Pay</div>
+                    <div id="qrCodeContainer" class="paytm-qr-code">
+                        <img src="{{ url_for('static', filename='images/paytm_qr.png') }}" alt="Paytm QR Code" class="qr-code-image">
+                    </div>
+                    <div class="paytm-upi-id">
+                        <div class="upi-id-label">UPI ID:</div>
+                        <div class="upi-id-value" id="qrUpiId">paytm.s13kqd1@py</div>
+                    </div>
+                    <div class="paytm-payment-logos">
+                        <div class="payment-logo">BHIM</div>
+                        <div class="payment-logo">UPI</div>
+                        <div class="payment-logo">Paytm</div>
+                        <div class="payment-logo">RuPay</div>
+                        <div class="payment-logo">UPI LITE</div>
+                    </div>
+                </div>
+                
+                <!-- Bottom Section -->
+                <div class="paytm-footer">
+                    <div class="paytm-footer-content">
+                        <div class="paytm-logo-white">Paytm</div>
+                        <span class="heart-icon">❤</span>
+                        <div class="paytm-upi-footer">
+                            <div class="upi-text-white">UPI</div>
+                            <div class="upi-subtitle">UNIFIED PAYMENTS INTERFACE</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Order Info -->
+                <div class="paytm-order-info">
+                    <div class="order-info-item">
+                        <span>Order:</span>
+                        <strong id="qrOrderNumber"></strong>
+                    </div>
+                    <div class="order-info-item">
+                        <span>Amount:</span>
+                        <strong>₹<span id="qrAmount"></span></strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
+

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Menu</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Manage Menu</h1>
+        <nav>
+            <a href="/">Menu</a>
+            <a href="/manage-menu">Manage Menu</a>
+            <a href="/sales-report">Sales Report</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="manage-menu-section">
+            <div class="menu-form-section">
+                <h2 id="formTitle">Add New Menu Item</h2>
+                <form id="menuForm" enctype="multipart/form-data">
+                    <input type="hidden" id="menuId" name="menu_id">
+                    
+                    <div class="form-group">
+                        <label for="name">Item Name:</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="price">Price (₹):</label>
+                        <input type="number" id="price" name="price" step="0.01" min="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description">Description:</label>
+                        <textarea id="description" name="description" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Image:</label>
+                        <div class="image-input-tabs">
+                            <button type="button" class="tab-btn active" onclick="switchImageTab('upload')">Upload File</button>
+                            <button type="button" class="tab-btn" onclick="switchImageTab('url')">From URL</button>
+                        </div>
+                        <div id="uploadTab" class="image-tab-content active">
+                            <input type="file" id="image" name="image" accept="image/*">
+                        </div>
+                        <div id="urlTab" class="image-tab-content">
+                            <input type="url" id="imageUrl" name="image_url" placeholder="https://example.com/image.jpg">
+                            <small>Enter image URL from any website</small>
+                            <div id="imagePreview" class="image-preview" style="display: none;">
+                                <img id="previewImg" src="" alt="Preview">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" id="submitBtn">Add Item</button>
+                        <button type="button" class="btn-secondary" onclick="resetForm()" id="cancelBtn" style="display: none;">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="menu-list-section">
+                <h2>Menu Items</h2>
+                <div class="menu-table-container">
+                    <table class="menu-table">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Price</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="menuTableBody">
+                            {% for item in menu_items %}
+                            <tr data-id="{{ item.id }}">
+                                <td>
+                                    {% if item.image_path %}
+                                        {% if item.image_path.startswith('http://') or item.image_path.startswith('https://') %}
+                                        <img src="{{ item.image_path }}" alt="{{ item.name }}" class="table-image" onerror="this.src='https://via.placeholder.com/50x50?text={{ item.name }}'">
+                                        {% else %}
+                                        <img src="{{ url_for('static', filename=item.image_path) }}" alt="{{ item.name }}" class="table-image" onerror="this.src='https://via.placeholder.com/50x50?text={{ item.name }}'">
+                                        {% endif %}
+                                    {% else %}
+                                    <img src="https://via.placeholder.com/50x50?text={{ item.name }}" alt="{{ item.name }}" class="table-image">
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.name }}</td>
+                                <td>₹{{ "%.2f"|format(item.price) }}</td>
+                                <td>{{ item.description or '-' }}</td>
+                                <td>
+                                    <button class="btn-edit" onclick="editItem({{ item.id }}, '{{ item.name }}', {{ item.price }}, '{{ item.description or '' }}', '{{ item.image_path or '' }}')">Edit</button>
+                                    <button class="btn-delete" onclick="deleteItem({{ item.id }})">Delete</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/manage_menu.js') }}"></script>
+</body>
+</html>
+

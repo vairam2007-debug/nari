@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Report</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Sales Report</h1>
+        <nav>
+            <a href="/">Menu</a>
+            <a href="/manage-menu">Manage Menu</a>
+            <a href="/sales-report">Sales Report</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="sales-report-section">
+            <div class="report-filters">
+                <h2>Monthly Sales Report</h2>
+                <div class="filter-group">
+                    <label for="month">Month:</label>
+                    <select id="month">
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                    
+                    <label for="year">Year:</label>
+                    <input type="number" id="year" min="2020" max="2099" value="2024">
+                    
+                    <button class="btn-primary" onclick="loadSalesData()">Load Report</button>
+                </div>
+            </div>
+
+            <div class="report-summary">
+                <div class="summary-card">
+                    <h3>Total Sales</h3>
+                    <p class="summary-value">₹<span id="totalSales">0.00</span></p>
+                </div>
+                <div class="summary-card">
+                    <h3>Total Orders</h3>
+                    <p class="summary-value"><span id="totalOrders">0</span></p>
+                </div>
+                <div class="summary-card">
+                    <h3>Average Order Value</h3>
+                    <p class="summary-value">₹<span id="avgOrderValue">0.00</span></p>
+                </div>
+            </div>
+
+            <div class="report-charts">
+                <div class="chart-container">
+                    <h3>Daily Sales</h3>
+                    <canvas id="dailySalesChart"></canvas>
+                </div>
+            </div>
+
+            <div class="report-tables">
+                <div class="table-section">
+                    <h3>Top Selling Items</h3>
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th>Quantity Sold</th>
+                                <th>Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topItemsTable">
+                            <tr>
+                                <td colspan="3">Select a month to view data</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-section">
+                    <h3>Daily Breakdown</h3>
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Orders</th>
+                                <th>Sales</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dailyBreakdownTable">
+                            <tr>
+                                <td colspan="3">Select a month to view data</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/sales_report.js') }}"></script>
+</body>
+</html>
+
